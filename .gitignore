@@ -1,0 +1,9 @@
+
+# ignore python 
+env/
+__pycache__/
+
+# ignore node 
+package-lock.json
+node_modules/
+
