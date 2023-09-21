@@ -74,17 +74,17 @@ Token_dict = {
     Token_enum.VOID_DEF: Token(["void"], "definicion de void"), # init void
     Token_enum.BOOL_DEF: Token(["bool"], "definicion de booleano"), # init bool
 
-    Token_enum.PARAM_START: Token(["\("], "inicio de parametros"), # paramenter start
-    Token_enum.PARAM_END: Token(["\)"], "fin de parametros"), # parameter end
+    Token_enum.PARAM_START: Token([r"\("], "inicio de parametros"), # paramenter start
+    Token_enum.PARAM_END: Token([r"\)"], "fin de parametros"), # parameter end
 
     Token_enum.FUNC_START: Token(["{"], "inicio de funcion"), # func start
     Token_enum.FUNC_END: Token(["}"], "final de funcion"), # func end
     Token_enum.RETURN: Token(["return"], "retorno de funcion"), # return func
     Token_enum.END_LINE: Token([";"], "fin de linea"), # end func
 
-    Token_enum.INTEGER_VALUE: Token(["\d+"], "numero entero"), # number
-    Token_enum.STRING_VALUE: Token(['".*"', "'.*'"], "string"), # string
-    Token_enum.FLOAT_VALUE: Token(['[+-]?(?=\d*[.eE])(?=\.?\d)\d*\.?\d*(?:[eE][+-]?\d+)?'], "numero flotante"), # float
+    Token_enum.INTEGER_VALUE: Token([r"\d+"], "numero entero"), # number
+    Token_enum.STRING_VALUE: Token([r'".*"', r"'.*'"], "string"), # string
+    Token_enum.FLOAT_VALUE: Token([r'[+-]?(?=\d*[.eE])(?=\.?\d)\d*\.?\d*(?:[eE][+-]?\d+)?'], "numero flotante"), # float
     
     Token_enum.PRINT: Token(["print"], "print func"),
     Token_enum.SUM: Token(["\+"], 'suma'),

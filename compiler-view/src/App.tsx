@@ -60,7 +60,7 @@ const App = () => {
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          bg='rgba(250,250,250,0.9)'
+          bg='rgba(250,250,250,0.5)'
         ></Textarea>
 
         <Text color='red'>{error}</Text>

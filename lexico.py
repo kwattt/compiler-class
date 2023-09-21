@@ -31,13 +31,14 @@ class InvalidTokenException(Exception):
     
     def __repr__(self):
         return self.__str__()
-    
+
 def parse_code(code) -> List[TokenMatch]:
     matches: List[TokenMatch] = []
 
     ## first remove comments from the code. we find the special token for comments, and remove the string after it
     token_comment = Token_dict[Token_enum.COMMENT]
     ncode = ''
+    # //
     for line in code.split('\n'):
         for match in re.finditer(token_comment.identifiers[0], line):
             line = line[:match.span()[0]]
@@ -49,15 +50,13 @@ def parse_code(code) -> List[TokenMatch]:
         for token in Token_dict.values():
             for identifier in token.identifiers:
                 for match in re.finditer(identifier, line):
-                    #print(match.group(), token.comentary, number, match.span(), f"  [[[ {line[match.span()[0]:match.span()[1]]} ]]]")
-                    #matches.append((token, match.span(), number, line[match.span()[0]:match.span()[1]]))
                     matches.append(TokenMatch(token, match.span(), number, line[match.span()[0]:match.span()[1]]))
-                    ## if its invalid print it 
-                    if token == Token_dict[Token_enum.INVALID_IDENTIFIER]:
-                        print(f"invalid token {match.group()} at line {number}, pos {match.span()[0]-1}")
+                    #if token == Token_dict[Token_enum.INVALID_IDENTIFIER]:
+                    #    print(f"invalid token {match.group()} at line {number}, pos {match.span()[0]-1}")
                         
     # check for repeated matches, IE: // is a comment but contains div token, so we need to remove the div token, and keep the comment token
     # this is done by checking if the match is contained in another match pos and same line, if it is not, we add to the new list
+
     new_matches = matches
     for match in matches:
         for match2 in matches: 
@@ -130,7 +129,8 @@ def parse_code(code) -> List[TokenMatch]:
 
         if invalid_start != -1:
             invalid_words.append(
-                TokenMatch(Token_dict[Token_enum.INVALID_IDENTIFIER], (invalid_start+1, invalid_start+len(invalid)+1), i, invalid)
+                TokenMatch(Token_dict[Token_enum.INVALID_IDENTIFIER], (invalid_start+1, invalid_start+len(invalid)+1),
+                 i, invalid)
             )
     
     for match in invalid_words:
