@@ -14,9 +14,9 @@ int void() {
     }
 //
     //13invalido
-    #asd
-    ..,
+    //#asd
+    //..,
 
-    lol?
+    //lol?
     //23132invalido
-}.
+}//.

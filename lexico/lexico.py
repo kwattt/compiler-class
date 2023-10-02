@@ -1,6 +1,4 @@
 import re 
-from enum import Enum
-# typings
 from typing import List, Tuple
 from tokens import Token_enum, Token_dict, Token
 
@@ -27,12 +25,12 @@ class InvalidTokenException(Exception):
         self.match = match
 
     def __str__(self):
-        return f"invalid token {self.match.match} at line {self.match.line}, pos {self.match.span[0]-1}"
+        return f"invalid token {self.match.match} at line {self.match.line+1}, pos {self.match.span[0]-1}"
     
     def __repr__(self):
         return self.__str__()
 
-def parse_code(code) -> List[TokenMatch]:
+def lexic_analyzer(code) -> List[TokenMatch]:
     matches: List[TokenMatch] = []
 
     ## first remove comments from the code. we find the special token for comments, and remove the string after it

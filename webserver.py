@@ -1,4 +1,4 @@
-from lexico import parse_code, Token_enum, Token_dict, InvalidTokenException
+from lexico import lexic_analyzer, Token_enum, Token_dict, InvalidTokenException
 
 import flask
 from flask import request, jsonify
@@ -20,7 +20,7 @@ def v1_lexico():
     code = data['code']
     # parse code
     try:
-        new_matches = parse_code(code)
+        new_matches = lexic_analyzer(code)
     except InvalidTokenException as e:
         return jsonify({"error": str(e)}), 200
     
