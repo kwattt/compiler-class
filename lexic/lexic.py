@@ -20,7 +20,7 @@ class TokenMatch:
     def __eq__(self, other):
         return self.token == other.token and self.span == other.span and self.line == other.line and self.match == other.match
 
-class InvalidTokenException(Exception):
+class LexicInvalidToken(Exception):
     def __init__(self, match: TokenMatch):
         self.match = match
 
@@ -98,7 +98,7 @@ def lexic_analyzer(code) -> List[TokenMatch]:
 
     for match in new_matches:    
         if match.token == Token_dict[Token_enum.INVALID_IDENTIFIER]:
-            raise InvalidTokenException(match)
+            raise LexicInvalidToken(match)
         
     ## find symbols that were not classified, remove brute tokens from code string
 
@@ -128,12 +128,11 @@ def lexic_analyzer(code) -> List[TokenMatch]:
         if invalid_start != -1:
             invalid_words.append(
                 TokenMatch(Token_dict[Token_enum.INVALID_IDENTIFIER], (invalid_start+1, invalid_start+len(invalid)+1),
-                 i, invalid)
+                i, invalid)
             )
     
     for match in invalid_words:
         if match.token == Token_dict[Token_enum.INVALID_IDENTIFIER]:
-            raise InvalidTokenException(match)
-
+            raise LexicInvalidToken(match)
     return new_matches
 ## exception type for invalid tokens, use Match to get info 

@@ -3,11 +3,36 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from parser_t import parse_program
-from token_map import AssignmentNode, ExpressionNode, FactorNode, IdentifierNode, NumberNode, ProgramNode, TermNode
+from token_map import Node, AssignmentNode, ExpressionNode, FactorNode, IdentifierNode, NumberNode, ProgramNode, TermNode
 
 # Function to insert nodes into the treeview
+tree = None 
+program_node = None
+def tree_view(code, program_nodex):
+    global tree 
+    global program_node
+    program_node = program_nodex
+
+    root = tk.Tk()
+    root.title("Syntax Tree Visualizer")
+
+    # Create input Text widget
+    text_input = tk.Text(root, height=10, width=40)
+    text_input.pack(pady=10)
+    text_input.insert(tk.END, code)
+
+    # Create parse button
+    btn_parse = tk.Button(root, text="Parse and Visualize", command=parse_and_visualize)
+    btn_parse.pack(pady=10)
+
+    # Create treeview for the syntax tree
+    tree = ttk.Treeview(root)
+    tree.pack(pady=20, padx=10, expand=True, fill=tk.BOTH)
+
+    root.mainloop()
+
 def insert_node(tree, parent, node):
+
     if isinstance(node, ProgramNode):
         id = tree.insert(parent, "end", text="Program")
         for child in node.children:
@@ -33,36 +58,14 @@ def insert_node(tree, parent, node):
 
 # Function to handle the parse and visualize button
 def parse_and_visualize():
-    code = text_input.get("1.0", tk.END)
+    print("called lol")
+    global tree 
+    global program_node
+    print(tree)
     tree.delete(*tree.get_children())
     try:
-        parsed_tree = parse_program(code)
-        insert_node(tree, "", parsed_tree)
+        insert_node(tree, "", program_node)
     except Exception as e:
         messagebox.showerror("Error", str(e))
 
 # Create main window
-root = tk.Tk()
-root.title("Syntax Tree Visualizer")
-
-sample_code = """
-x = 5;
-jalisco = x + 10;
-z = x * y + 2;
-x = x * z;
-"""
-
-# Create input Text widget
-text_input = tk.Text(root, height=10, width=40)
-text_input.pack(pady=10)
-text_input.insert(tk.END, sample_code)
-
-# Create parse button
-btn_parse = tk.Button(root, text="Parse and Visualize", command=parse_and_visualize)
-btn_parse.pack(pady=10)
-
-# Create treeview for the syntax tree
-tree = ttk.Treeview(root)
-tree.pack(pady=20, padx=10, expand=True, fill=tk.BOTH)
-
-root.mainloop()

@@ -1,4 +1,4 @@
-from lexico import lexic_analyzer, Token_enum, Token_dict, InvalidTokenException
+from lexic import lexic_analyzer, Token_enum, Token_dict, InvalidTokenException
 
 import flask
 from flask import request, jsonify

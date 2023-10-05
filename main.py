@@ -1,4 +1,4 @@
-from lexico import lexic_analyzer
+from lexic import lexic_analyzer
 
 example_code = open("example_code.txt", "r").read()
 ## add number to each line
