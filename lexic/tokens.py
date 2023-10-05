@@ -18,7 +18,6 @@ class Token:
     def __hash__(self):
         return hash((tuple(self.identifiers), self.comentary))
 
-
 class Token_enum(Enum):
     INTEGER_DEF = 1
     FLOAT_DEF = 2
@@ -59,13 +58,13 @@ class Token_enum(Enum):
     BREAK = 35
     CONTINUE = 36
 
-    TRUE = 37
-    FALSE = 38
+    BOOLEAN_VALUE = 37
 
-    COMMENT = 39
+    COMMENT = 38
 
-    IDENTIFIER = 40
-    INVALID_IDENTIFIER = 41
+    IDENTIFIER = 39
+    INVALID_IDENTIFIER = 40
+    #TOKEN_EOF = 41
 
 Token_dict = {
     Token_enum.INTEGER_DEF: Token(["int"], "definicion de entero"), # init int
@@ -112,8 +111,7 @@ Token_dict = {
     Token_enum.BREAK: Token(["break"], 'break'),
     Token_enum.CONTINUE: Token(["continue"], 'continue'),
 
-    Token_enum.TRUE: Token(["true"], 'booleano 1'),
-    Token_enum.FALSE: Token(["false"], 'booleano 0'),
+    Token_enum.BOOLEAN_VALUE: Token(["false","true"], 'booleano'),
 
     Token_enum.COMMENT: Token(["//"], 'comentario'),
 
@@ -122,4 +120,5 @@ Token_dict = {
     Token_enum.IDENTIFIER: Token([r'(?<![\w#?])[a-zA-Z]+[0-9]*(?![\w#?])'], 'identificador'),
     ## invalid identifier,basically the before regex inverted
     Token_enum.INVALID_IDENTIFIER: Token([r"\b[0-9]+[a-zA-Z_]+\b"], 'identificador invalido'),
+    #Token_enum.TOKEN_EOF: Token([""], 'fin de archivo')
 }
