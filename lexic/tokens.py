@@ -64,6 +64,8 @@ class Token_enum(Enum):
 
     IDENTIFIER = 39
     INVALID_IDENTIFIER = 40
+    PARAM_SEPARATOR = 41
+    FUNC_DEF = 42
     #TOKEN_EOF = 41
 
 Token_dict = {
@@ -114,6 +116,8 @@ Token_dict = {
     Token_enum.BOOLEAN_VALUE: Token(["false","true"], 'booleano'),
 
     Token_enum.COMMENT: Token(["//"], 'comentario'),
+    Token_enum.PARAM_SEPARATOR: Token([","], 'separador de parametros'),
+    Token_enum.FUNC_DEF: Token(["fun"], 'definicion de funcion'),
 
     # Identifier, ej function names, variable names
     # basically any word that doesnt start with a number, and is not a reserved word

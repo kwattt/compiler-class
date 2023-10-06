@@ -35,33 +35,60 @@ class Parser:
             raise ParserUnexpectedEnd(self.index, len(self.tokens))
         current_token:Token = self.tokens[self.index]
         if expected_type and current_token.token != expected_type:
-            raise ParserUnexpectedType(expected_type, current_token.token)
+            raise ParserUnexpectedType(expected_type, current_token)
         self.index += 1
         return current_token
 
     def program(self):
         node = ProgramNode()
         while self.index < len(self.tokens):
-            if self.tokens[self.index].token == Token_dict[Token_enum.IF]:
-                node.children.append(self.if_statement())
-            elif self.tokens[self.index].token == Token_dict[Token_enum.IDENTIFIER]:
-                node.children.append(self.statement())
-            ## check if its } or end of file
-            elif self.tokens[self.index].token == Token_dict[Token_enum.FUNC_END]:
+            if self.tokens[self.index].token == Token_dict[Token_enum.FUNC_END]:
+                # if starts with a function end, then is invalid.
+                if self.index == 0:
+                    raise ParserUnexpectedType("Program started with }", self.tokens[self.index])
                 break
+            node.children.append(self.statement())
 
         return node
 
+    ###### statement     -> 
+    # special_func | function_def | assignment | 
+    # if_statement | while_statement | jump_statement | 
+    # function_call ;
     def statement(self):
-        if self.tokens[self.index].token == Token_dict[Token_enum.COMMENT]:
-            return self.comment()
-        else:
+        if self.tokens[self.index].token in [Token_dict[Token_enum.PRINT]]:
+            return self.special_func()
+        elif self.tokens[self.index].token == Token_dict[Token_enum.FUNC_DEF]:
+            return self.function()
+        elif self.tokens[self.index].token in [Token_dict[Token_enum.INTEGER_DEF], Token_dict[Token_enum.FLOAT_DEF], Token_dict[Token_enum.STRING_DEF], Token_dict[Token_enum.BOOL_DEF], Token_dict[Token_enum.VOID_DEF]]:
             return self.assignment()
+        elif self.tokens[self.index].token == Token_dict[Token_enum.IF]:
+            return self.if_statement()
+        elif self.tokens[self.index].token == Token_dict[Token_enum.WHILE]:
+            return self.while_statement()
+        elif self.tokens[self.index].token == Token_dict[Token_enum.RETURN] or self.tokens[self.index].token == Token_dict[Token_enum.BREAK] or self.tokens[self.index].token == Token_dict[Token_enum.CONTINUE]:
+            return self.jump_statement()
+        elif self.tokens[self.index].token == Token_dict[Token_enum.IDENTIFIER]:
+            return self.function_call()
+        else:
+            raise ParserUnexpectedType("Invalid statement", self.tokens[self.index])
 
     def comment(self):
         token = self.consume(Token_dict[Token_enum.COMMENT])
         return CommentNode(token.match)
 
+    ###### while_statement -> while ( expression ) { program }
+    def while_statement(self):
+        self.consume(Token_dict[Token_enum.WHILE])
+        self.consume(Token_dict[Token_enum.PARAM_START])
+        condition = self.expression()
+        self.consume(Token_dict[Token_enum.PARAM_END])
+        self.consume(Token_dict[Token_enum.FUNC_START])
+        program = self.program()
+        self.consume(Token_dict[Token_enum.FUNC_END])
+        return WhileStatementNode(condition, program)
+
+    ###### if_statement  -> if ( expression ) { program } | if ( expression ) { program } else { program }
     def if_statement(self):
         self.consume(Token_dict[Token_enum.IF])
         self.consume(Token_dict[Token_enum.PARAM_START])
@@ -80,13 +107,114 @@ class Parser:
         
         return IfStatementNode(condition, true_branch, false_branch)
 
-    def assignment(self):
-        identifier = self.identifier()
-        self.consume(Token_dict[Token_enum.ASSIGN])
-        expression = self.expression()
-        self.consume(Token_dict[Token_enum.END_LINE])
-        return AssignmentNode(identifier, expression)
+    ###### jump_statement -> return expression ; | break ; | continue ;
+    def jump_statement(self):
+        if self.tokens[self.index].token == Token_dict[Token_enum.RETURN]:
+            self.consume(Token_dict[Token_enum.RETURN])
+            expression = self.expression()
+            self.consume(Token_dict[Token_enum.END_LINE])
+            return ReturnStatementNode(expression)
+        elif self.tokens[self.index].token == Token_dict[Token_enum.BREAK]:
+            self.consume(Token_dict[Token_enum.BREAK])
+            self.consume(Token_dict[Token_enum.END_LINE])
+            return BreakStatementNode()
+        elif self.tokens[self.index].token == Token_dict[Token_enum.CONTINUE]:
+            self.consume(Token_dict[Token_enum.CONTINUE])
+            self.consume(Token_dict[Token_enum.END_LINE])
+            return ContinueStatementNode()
+        else:
+            raise ParserUnexpectedType("Invalid jump statement", self.tokens[self.index])
 
+    ###### assignment    -> type identifier = expression ;
+    def assignment(self):
+        type_node = self.type()
+        identifier_node = self.identifier()
+        self.consume(Token_dict[Token_enum.ASSIGN])
+        expression_node = self.expression()
+        self.consume(Token_dict[Token_enum.END_LINE])
+        return AssignmentNode(type_node, identifier_node, expression_node)
+
+    ###### function      -> fun type identifier ( parameters ) { program }
+    def function(self):
+        self.consume(Token_dict[Token_enum.FUNC_DEF])
+        type_node = self.type()
+        identifier_node = self.identifier()
+        self.consume(Token_dict[Token_enum.PARAM_START])
+        parameters_node = self.parameters()
+        self.consume(Token_dict[Token_enum.PARAM_END])
+        self.consume(Token_dict[Token_enum.FUNC_START])
+        program_node = self.program()
+        self.consume(Token_dict[Token_enum.FUNC_END])
+        return FunctionNode(type_node, identifier_node, parameters_node, program_node)
+
+    ###### function_call     -> identifier ( parameters )
+    def function_call(self):
+        identifier_node = self.identifier()
+        self.consume(Token_dict[Token_enum.PARAM_START])
+        parameters_node = self.function_parameters()
+        self.consume(Token_dict[Token_enum.PARAM_END])
+        return FunctionCallNode(identifier_node, parameters_node)
+
+    ###### function_parameters -> factor | factor , function_parameters | ε
+    def function_parameters(self):
+        if self.tokens[self.index].token == Token_dict[Token_enum.PARAM_END]:
+            return None
+        else:
+            node = self.factor()
+            if self.index < len(self.tokens) and self.tokens[self.index].token == Token_dict[Token_enum.PARAM_SEPARATOR]:
+                self.consume(Token_dict[Token_enum.PARAM_SEPARATOR])
+                return FunctionParametersNode(node, self.function_parameters())
+            else:
+                return FunctionParametersNode(node)
+
+    ###### parameters    -> type identifier | type identifier , parameters | ε
+    def parameters(self):
+        if self.tokens[self.index].token == Token_dict[Token_enum.PARAM_END]:
+            return None
+        else:
+            type_node = self.type()
+            identifier_node = self.identifier()
+            if self.index < len(self.tokens) and self.tokens[self.index].token == Token_dict[Token_enum.PARAM_SEPARATOR]:
+                self.consume(Token_dict[Token_enum.PARAM_SEPARATOR])
+                return ParametersNode(type_node, identifier_node, self.parameters())
+            else:
+                return ParametersNode(type_node, identifier_node)
+
+    ###### special_func  -> print
+    def special_func(self):
+        if self.tokens[self.index].token == Token_dict[Token_enum.PRINT]:
+            return self.print()
+        else:
+            raise ParserUnexpectedType("Invalid special function", self.tokens[self.index])
+    ###### print     -> print ( expression ) ;
+    def print(self):
+        self.consume(Token_dict[Token_enum.PRINT])
+        self.consume(Token_dict[Token_enum.PARAM_START])
+        expression_node = self.expression()
+        self.consume(Token_dict[Token_enum.PARAM_END])
+        self.consume(Token_dict[Token_enum.END_LINE])
+        return PrintNode(expression_node)
+
+    ###### type         -> int | float | string | bool | void
+    def type(self):
+        if self.tokens[self.index].token == Token_dict[Token_enum.INTEGER_DEF]:
+            self.consume(Token_dict[Token_enum.INTEGER_DEF])
+            return TypeNode("int")
+        elif self.tokens[self.index].token == Token_dict[Token_enum.FLOAT_DEF]:
+            self.consume(Token_dict[Token_enum.FLOAT_DEF])
+            return TypeNode("float")
+        elif self.tokens[self.index].token == Token_dict[Token_enum.STRING_DEF]:
+            self.consume(Token_dict[Token_enum.STRING_DEF])
+            return TypeNode("string")
+        elif self.tokens[self.index].token == Token_dict[Token_enum.BOOL_DEF]:
+            self.consume(Token_dict[Token_enum.BOOL_DEF])
+            return TypeNode("bool")
+        elif self.tokens[self.index].token == Token_dict[Token_enum.VOID_DEF]:
+            self.consume(Token_dict[Token_enum.VOID_DEF])
+            return TypeNode("void")
+        else:
+            raise ParserUnexpectedType("Invalid type", self.tokens[self.index])
+        
     def identifier(self):
         token = self.consume(Token_dict[Token_enum.IDENTIFIER])
         return IdentifierNode(token.match)
@@ -162,6 +290,7 @@ class Parser:
             node = TermNode(node, operator, self.factor())
         return node
 
+    ###### factor        -> identifier | number | float_number | string | boolean | ( expression ) | function_call
     def factor(self):
         if self.tokens[self.index].token == Token_dict[Token_enum.PARAM_START]:
             self.consume(Token_dict[Token_enum.PARAM_START])
@@ -181,6 +310,8 @@ class Parser:
             token = self.consume(Token_dict[Token_enum.BOOLEAN_VALUE])
             return FactorNode(BooleanNode(token.match))
         else:
+            if self.tokens[self.index+1].token == Token_dict[Token_enum.PARAM_START]:
+                return self.function_call()
             return FactorNode(self.identifier())
 
     def parse(self):
