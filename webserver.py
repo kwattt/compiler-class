@@ -4,7 +4,7 @@ import flask
 from flask import request, jsonify
 from flask_cors import CORS
 
-from syntax import parse_program, program_to_tree
+from syntax import parse_program, program_to_tree, ParserUnexpectedEnd, ParserUnexpectedType
 
 app = flask.Flask(__name__)
 cors = CORS(app , resources={r"/*": {"origins": "*", "allow_headers": "*", "expose_headers": "*"}})
@@ -32,8 +32,13 @@ def v1_lexico():
     processed_text = ''
     for match in new_matches:
         processed_text += match.match + ' '
+    try:
+        parsed_code = parse_program(new_matches)
+    except ParserUnexpectedEnd as e:
+        return jsonify({"error": str(e)}), 200
+    except ParserUnexpectedType as e:
+        return jsonify({"error": str(e)}), 200
 
-    parsed_code = parse_program(new_matches)
     tree_dict = program_to_tree(parsed_code)
 
     return jsonify({

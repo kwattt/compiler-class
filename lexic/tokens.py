@@ -121,7 +121,9 @@ Token_dict = {
 
     # Identifier, ej function names, variable names
     # basically any word that doesnt start with a number, and is not a reserved word
-    Token_enum.IDENTIFIER: Token([r'(?<![\w#?])[a-zA-Z]+[0-9]*(?![\w#?])'], 'identificador'),
+    ## can also have _ in the name
+    #Token_enum.IDENTIFIER: Token([r'(?<![\w#?])[a-zA-Z]+[0-9]*(?![\w#?])'], 'identificador'),
+    Token_enum.IDENTIFIER: Token([r'\b[a-zA-Z_][a-zA-Z0-9_]*\b'], 'identificador'),
     ## invalid identifier,basically the before regex inverted
     Token_enum.INVALID_IDENTIFIER: Token([r"\b[0-9]+[a-zA-Z_]+\b"], 'identificador invalido'),
     #Token_enum.TOKEN_EOF: Token([""], 'fin de archivo')

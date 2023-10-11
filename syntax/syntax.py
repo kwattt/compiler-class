@@ -5,13 +5,30 @@ from lexic.lexic import TokenMatch
 from lexic.tokens import Token_dict, Token_enum, Token
 from syntax_tree import * 
 
+TOKEN_TYPES_DEF = [
+    Token_dict[Token_enum.INTEGER_DEF],
+    Token_dict[Token_enum.FLOAT_DEF],
+    Token_dict[Token_enum.STRING_DEF],
+    Token_dict[Token_enum.BOOL_DEF],
+    Token_dict[Token_enum.VOID_DEF]
+]
+TOKEN_TYPES_VAL = [
+    Token_dict[Token_enum.INTEGER_VALUE],
+    Token_dict[Token_enum.FLOAT_VALUE],
+    Token_dict[Token_enum.STRING_VALUE],
+    Token_dict[Token_enum.BOOLEAN_VALUE]
+]
+
 class ParserUnexpectedEnd(Exception):
-    def __init__(self, index: int , length: int):
+    def __init__(self, index: int , length: int, token: TokenMatch = None):
         self.index = index
         self.length = length
-
+        self.token = token
     def __str__(self):
-        return f"unexpected end of input with index {self.index} (tokens length : {self.length})" 
+        if not self.token: 
+            return f"unexpected end of input with index {self.index} (tokens length : {self.length})" 
+        else:
+            return f"unexpected end of input with index {self.index} (tokens length : {self.length})\n{self.token}"
     def __repr__(self):
         return self.__str__()
 
@@ -52,7 +69,7 @@ class Parser:
         return node
 
     ###### statement     -> 
-    # special_func | function_def | assignment | 
+    # special_func | function_def | assignment | initialization |
     # if_statement | while_statement | jump_statement | 
     # function_call ;
     def statement(self):
@@ -60,16 +77,28 @@ class Parser:
             return self.special_func()
         elif self.tokens[self.index].token == Token_dict[Token_enum.FUNC_DEF]:
             return self.function()
-        elif self.tokens[self.index].token in [Token_dict[Token_enum.INTEGER_DEF], Token_dict[Token_enum.FLOAT_DEF], Token_dict[Token_enum.STRING_DEF], Token_dict[Token_enum.BOOL_DEF], Token_dict[Token_enum.VOID_DEF]]:
-            return self.assignment()
+        elif self.tokens[self.index].token in TOKEN_TYPES_DEF:
+            return self.initialization()
+        elif self.tokens[self.index].token == Token_dict[Token_enum.IDENTIFIER]:
+            # function_Call or assignment
+            if self.tokens[self.index+1].token == Token_dict[Token_enum.PARAM_START]:
+                r = self.function_call()
+                ## check if there is a ; at the end
+                ## if its out of index, then its an error
+                if self.index >= len(self.tokens):
+                    raise ParserUnexpectedEnd(self.index, len(self.tokens), self.tokens[self.index-3])
+                if self.tokens[self.index].token == Token_dict[Token_enum.END_LINE]:
+                    self.consume(Token_dict[Token_enum.END_LINE])
+                    return r
+            else:
+                return self.assignment()
+
         elif self.tokens[self.index].token == Token_dict[Token_enum.IF]:
             return self.if_statement()
         elif self.tokens[self.index].token == Token_dict[Token_enum.WHILE]:
             return self.while_statement()
         elif self.tokens[self.index].token == Token_dict[Token_enum.RETURN] or self.tokens[self.index].token == Token_dict[Token_enum.BREAK] or self.tokens[self.index].token == Token_dict[Token_enum.CONTINUE]:
             return self.jump_statement()
-        elif self.tokens[self.index].token == Token_dict[Token_enum.IDENTIFIER]:
-            return self.function_call()
         else:
             raise ParserUnexpectedType("Invalid statement", self.tokens[self.index])
 
@@ -107,13 +136,17 @@ class Parser:
         
         return IfStatementNode(condition, true_branch, false_branch)
 
-    ###### jump_statement -> return expression ; | break ; | continue ;
+    ###### jump_statement -> return expression ; | return ; | break ; | continue ;
     def jump_statement(self):
         if self.tokens[self.index].token == Token_dict[Token_enum.RETURN]:
             self.consume(Token_dict[Token_enum.RETURN])
-            expression = self.expression()
-            self.consume(Token_dict[Token_enum.END_LINE])
-            return ReturnStatementNode(expression)
+            if self.tokens[self.index].token == Token_dict[Token_enum.END_LINE]:
+                self.consume(Token_dict[Token_enum.END_LINE])
+                return ReturnStatementNode()
+            else:
+                expression_node = self.expression()
+                self.consume(Token_dict[Token_enum.END_LINE])
+                return ReturnStatementNode(expression_node)
         elif self.tokens[self.index].token == Token_dict[Token_enum.BREAK]:
             self.consume(Token_dict[Token_enum.BREAK])
             self.consume(Token_dict[Token_enum.END_LINE])
@@ -125,14 +158,27 @@ class Parser:
         else:
             raise ParserUnexpectedType("Invalid jump statement", self.tokens[self.index])
 
-    ###### assignment    -> type identifier = expression ;
-    def assignment(self):
+
+    ###### initialization -> type identifier = expression | type identifier;
+    def initialization(self):
         type_node = self.type()
+        identifier_node = self.identifier()
+        if self.index < len(self.tokens) and self.tokens[self.index].token == Token_dict[Token_enum.ASSIGN]:
+            self.consume(Token_dict[Token_enum.ASSIGN])
+            expression_node = self.expression()
+            self.consume(Token_dict[Token_enum.END_LINE])
+            return InitializationNode(type_node, identifier_node, expression_node)
+        else:
+            self.consume(Token_dict[Token_enum.END_LINE])
+            return InitializationNode(type_node, identifier_node)
+
+    ###### assignment    -> identifier = expression;
+    def assignment(self):
         identifier_node = self.identifier()
         self.consume(Token_dict[Token_enum.ASSIGN])
         expression_node = self.expression()
         self.consume(Token_dict[Token_enum.END_LINE])
-        return AssignmentNode(type_node, identifier_node, expression_node)
+        return AssignmentNode(identifier_node, expression_node)
 
     ###### function      -> fun type identifier ( parameters ) { program }
     def function(self):

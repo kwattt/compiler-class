@@ -10,10 +10,12 @@
 ###### program       -> statement 
 ###### statement     -> special_func | function_def | assignment | if_statement | while_statement | comment | jump_statement | function_call ;
 
-###### assignment    -> type identifier = expression ;
+
+###### initialization -> type identifier = expression | type identifier;
+###### assignment    -> identifier = expression;
 ###### if_statement  -> if ( expression ) { program } | if ( expression ) { program } else { program }
 ###### 
-###### jump_statement -> return expression ; | break ; | continue ;
+###### jump_statement -> return expression ; | return | break ; | continue ;
 ###### expression    -> logic_expr | arithmetic_expr
 ###### logic_expr    -> logic_term | logic_term or logic_expr | logic_term and logic_expr
 ###### logic_term    -> logic_factor | logic_factor == logic_term | logic_factor != logic_term

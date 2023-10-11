@@ -18,14 +18,17 @@ fun int suma(int a, int b) {
     return a+b;
 }
 
-int i = 22;
-if((2+2)==4) {
-    print("verdad");
-    void a = 0;
-    print(suma(2,3));
-} else {
-    print("you suck");
+fun void do_stuff(){
+    int i = 22;
+    if((2+2)==4) {
+        print("verdad");
+        void a = 0;
+        print(suma(2,3));
+    } else {
+        print("you suck");
+    }
 }
+do_stuff();
 """
 
 tokens = lexic_analyzer(sample_code)

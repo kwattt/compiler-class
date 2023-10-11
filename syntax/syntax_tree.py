@@ -46,11 +46,11 @@ class ProgramNode(Node):
 class StatementNode(Node):
     pass
 
+###### assignment    -> identifier = expression;
 class AssignmentNode(StatementNode):
-    def __init__(self, type, identifier, expression):
+    def __init__(self, identifier, expression):
         self.identifier : IdentifierNode = identifier
         self.expression : ExpressionNode = expression
-        self.identifier_type : TypeNode = type
 
     def __repr__(self):
         return f"Assignment({self.identifier}, {self.expression})"
@@ -159,9 +159,10 @@ class WhileStatementNode(StatementNode):
 
     def __repr__(self):
         return f"WhileStatement({self.condition}, {self.true_branch})"
-    
+
+# ReturnStatement -> return Expression  | return ;    
 class ReturnStatementNode(StatementNode):
-    def __init__(self, expression):
+    def __init__(self, expression=None):
         self.expression : ExpressionNode = expression
 
     def __repr__(self):
@@ -242,3 +243,13 @@ class SpecialFuncNode(Node):
 
     def __repr__(self):
         return f"SpecialFunc({self.value})"
+    
+###### initialization -> type identifier = expression | type identifier;
+class InitializationNode(Node):
+    def __init__(self, type, identifier, expression=None):
+        self.type : TypeNode = type
+        self.identifier : IdentifierNode = identifier
+        self.expression : ExpressionNode = expression
+
+    def __repr__(self):
+        return f"Initialization({self.type}, {self.identifier}, {self.expression})"
