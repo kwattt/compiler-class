@@ -1,8 +1,10 @@
-import { Box,Button,Table,TableCaption,TableContainer,Tbody,Text, Textarea, Th, Thead, Tr } from "@chakra-ui/react"
+import { Box,Button,Table,TableCaption,Textarea,TableContainer,Tbody,Text, Th, Thead, Tr } from "@chakra-ui/react"
 import { useState } from "react"
 import axios from "axios"
 import './index.css'
 import Tree from "react-d3-tree"
+import CodeMirror from "@uiw/react-codemirror";
+import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 
 type tokenMatch = {
   token: string,
@@ -115,11 +117,11 @@ const App = () => {
           onClick={() => getAxiosData(input)}
         >Analizar</Button>
         </Box>
-        <Textarea
+        <CodeMirror
           value={input}
-          onChange={(e) => setInput(e.target.value)}
-          bg='rgba(250,250,250,0.5)'
-        ></Textarea>
+          theme={vscodeDark}
+          onChange={(e) => setInput(e)}
+        ></CodeMirror>
 
         <Text color='red'>{error}</Text>
 
@@ -127,10 +129,11 @@ const App = () => {
           tdata.length > 0 ? `(${tdata.length} tokens)` : ''
           }</Text>
         <Textarea disabled
-          minH='0.5vh'
+          minH='5vh'
           value={output}
           onChange={(e) => setOutput(e.target.value)}
           bg='rgba(250,250,250,0.8)'
+          color='black'
         ></Textarea>
       </Box>
       
