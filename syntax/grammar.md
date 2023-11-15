@@ -1,16 +1,12 @@
 # Gramatica de lenguaje 
 
-
 ##### Keywords 
 ###### if, else, while, break, true, false, or, and, not
 ###### int, float, string, bool, void
 ###### return, break, continue
 ###### func 
-
 ###### program       -> statement 
 ###### statement     -> special_func | function_def | assignment | if_statement | while_statement | comment | jump_statement | function_call ;
-
-
 ###### initialization -> type identifier = expression | type identifier;
 ###### assignment    -> identifier = expression;
 ###### if_statement  -> if ( expression ) { program } | if ( expression ) { program } else { program }

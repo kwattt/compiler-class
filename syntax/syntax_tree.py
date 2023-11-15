@@ -118,18 +118,23 @@ class TermNode(ExpressionNode):
         return f"Term({self.left}, {self.operator}, {self.right})"
 
 class FactorNode(ExpressionNode):
-    def __init__(self, value):
-        self.value : str = value
+    def __init__(self, value: [int, float, str, bool]):
+        self.value = value
 
     def __repr__(self):
-        return f"Factor({self.value})"
+        return f"Factor({self.value}, {self.value.__class__.__name__})"
 
-class NumberNode(FactorNode):
+
+class IntNode(FactorNode):
     def __init__(self, value):
         super().__init__(value)
 
     def __repr__(self):
-        return f"Number({self.value})"
+        print("val type -> ", type(self.value))
+        return type(self.value)
+    
+    def __str__(self) -> str:
+        return f"Int({self.value})"
 
 class FloatNode(FactorNode):
     def __init__(self, value):
@@ -184,15 +189,15 @@ class ContinueStatementNode(StatementNode):
     
 class TypeNode(Node):
     def __init__(self, value):
-        self.value : str = value
+        self.value = value
 
     def __repr__(self):
-        return f"Type({self.value})"
+        return f"{self.value}Node"
     
 ###### function      -> func type identifier ( parameters ) { program }
 class FunctionNode(Node):
     def __init__(self, type, identifier, parameters, program):
-        self.type : TypeNode = type
+        self.type : [IntNode, FloatNode, StringNode, BooleanNode] = type
         self.identifier : IdentifierNode = identifier
         self.parameters : ParametersNode = parameters
         self.program : ProgramNode = program
@@ -247,7 +252,7 @@ class SpecialFuncNode(Node):
 ###### initialization -> type identifier = expression | type identifier;
 class InitializationNode(Node):
     def __init__(self, type, identifier, expression=None):
-        self.type : TypeNode = type
+        self.type : [IntNode, FloatNode, StringNode, BooleanNode] = type
         self.identifier : IdentifierNode = identifier
         self.expression : ExpressionNode = expression
 

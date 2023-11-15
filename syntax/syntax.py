@@ -191,6 +191,7 @@ class Parser:
         self.consume(Token_dict[Token_enum.FUNC_START])
         program_node = self.program()
         self.consume(Token_dict[Token_enum.FUNC_END])
+
         return FunctionNode(type_node, identifier_node, parameters_node, program_node)
 
     ###### function_call     -> identifier ( parameters )
@@ -245,19 +246,19 @@ class Parser:
     def type(self):
         if self.tokens[self.index].token == Token_dict[Token_enum.INTEGER_DEF]:
             self.consume(Token_dict[Token_enum.INTEGER_DEF])
-            return TypeNode("int")
+            return TypeNode("Int")
         elif self.tokens[self.index].token == Token_dict[Token_enum.FLOAT_DEF]:
             self.consume(Token_dict[Token_enum.FLOAT_DEF])
-            return TypeNode("float")
+            return TypeNode("Float")
         elif self.tokens[self.index].token == Token_dict[Token_enum.STRING_DEF]:
             self.consume(Token_dict[Token_enum.STRING_DEF])
-            return TypeNode("string")
+            return TypeNode("String")
         elif self.tokens[self.index].token == Token_dict[Token_enum.BOOL_DEF]:
             self.consume(Token_dict[Token_enum.BOOL_DEF])
-            return TypeNode("bool")
+            return TypeNode("Bool")
         elif self.tokens[self.index].token == Token_dict[Token_enum.VOID_DEF]:
             self.consume(Token_dict[Token_enum.VOID_DEF])
-            return TypeNode("void")
+            return TypeNode("Void")
         else:
             raise ParserUnexpectedType("Invalid type", self.tokens[self.index])
         
@@ -345,7 +346,7 @@ class Parser:
             return FactorNode(node)
         elif self.tokens[self.index].token == Token_dict[Token_enum.INTEGER_VALUE]:
             token = self.consume(Token_dict[Token_enum.INTEGER_VALUE])
-            return FactorNode(NumberNode(token.match))
+            return FactorNode(IntNode(token.match))
         elif self.tokens[self.index].token == Token_dict[Token_enum.FLOAT_VALUE]:
             token = self.consume(Token_dict[Token_enum.FLOAT_VALUE])
             return FactorNode(FloatNode(token.match))

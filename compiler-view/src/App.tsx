@@ -1,5 +1,5 @@
-import { Box,Button,Table,TableCaption,Textarea,TableContainer,Tbody,Text, Th, Thead, Tr } from "@chakra-ui/react"
-import { useState } from "react"
+import { Box,Button,Table,TableCaption,Textarea,TableContainer,Tbody,Text, Th, Thead, Tr, Input } from "@chakra-ui/react"
+import { useEffect, useState } from "react"
 import axios from "axios"
 import './index.css'
 import Tree from "react-d3-tree"
@@ -74,7 +74,8 @@ const App = () => {
   const [tdata, setData] = useState<tokenMatch[]>([])
   const [error, setError] = useState('')
   const [treeData, setTreeData] = useState<any>({})
-  
+  const [file, setFile] = useState<File | null>(null);
+
   const getAxiosData = async (sdata: string) => {
     const { data } = await axios.post('http://localhost:5000/api/v1/lexico', { code: sdata })
     
@@ -96,6 +97,19 @@ const App = () => {
 
   }
 
+  useEffect(() => {
+    // update the input value
+    if(file) {
+      const reader = new FileReader()
+      reader.readAsText(file)
+      reader.onloadend = () => {
+        if(reader.result) {
+          setInput(reader.result.toString())
+        }
+      }
+    }
+  }, [file])
+
   return <body><Box h='100vh' w='100vw'
     p='2em'
   >
@@ -110,6 +124,18 @@ const App = () => {
         my='1em'
         >
         <Text>Input</Text> 
+        <Input
+          w='10vw'
+          // upload button
+          type='file'
+
+          onChange={(e) => {
+            if (e.target.files) {
+              setFile(e.target.files[0]);
+            }
+          }}
+        >
+        </Input>
         <Button 
           ml='2em' 
           size='xs' 

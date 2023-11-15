@@ -1,15 +1,19 @@
-int void() {
-    int integral = 2;
+fun int wawas() {
     while (true) {
-        if (a==false)
+        float a = 2.2;
+        if (a==' '){
             break;
+        }
+        a = 2.1 + 2.0;
     }
     // buenas tardes..
 
     int asd = 22;
-
     int i = 22;
-    if(2+2==4) {
+
+    wawas();
+
+    if((2+2)==4) {
         print('hola mundo');
     }
 //
