@@ -1,26 +1,6 @@
 fun int wawas() {
-    while (true) {
-        float a = 2.2;
-        if (a==' '){
-            break;
-        }
-        a = 2.1 + 2.0;
-    }
-    // buenas tardes..
-
-    int asd = 22;
-    int i = 22;
-
-    wawas();
-
-    if((2+2)==4) {
-        print('hola mundo');
-    }
-//
-    //13invalido
-    //#asd
-    //..,
-
-    //lol?
-    //23132invalido
 }//.
+
+int a = 2;
+a = 'a';
+wawas();

@@ -258,3 +258,12 @@ class InitializationNode(Node):
 
     def __repr__(self):
         return f"Initialization({self.type}, {self.identifier}, {self.expression})"
+    
+###### cin -> cin >> identifier ;
+
+class CinNode(Node):
+    def __init__(self, identifier):
+        self.identifier : IdentifierNode = identifier
+
+    def __repr__(self):
+        return f"Cin({self.identifier})"

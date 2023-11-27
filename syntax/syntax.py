@@ -92,7 +92,10 @@ class Parser:
                     return r
             else:
                 return self.assignment()
-
+        ## check cin 
+        elif self.tokens[self.index].token == Token_dict[Token_enum.CIN]:
+            return self.parse_cin()
+        
         elif self.tokens[self.index].token == Token_dict[Token_enum.IF]:
             return self.if_statement()
         elif self.tokens[self.index].token == Token_dict[Token_enum.WHILE]:
@@ -231,6 +234,7 @@ class Parser:
     def special_func(self):
         if self.tokens[self.index].token == Token_dict[Token_enum.PRINT]:
             return self.print()
+        
         else:
             raise ParserUnexpectedType("Invalid special function", self.tokens[self.index])
     ###### print     -> print ( expression ) ;
@@ -360,6 +364,15 @@ class Parser:
             if self.tokens[self.index+1].token == Token_dict[Token_enum.PARAM_START]:
                 return self.function_call()
             return FactorNode(self.identifier())
+
+    ###### cin -> cin >> identifier ;
+
+    def parse_cin(self):
+        self.consume(Token_dict[Token_enum.CIN])
+        self.consume(Token_dict[Token_enum.ASSIGN])
+        identifier_node = self.identifier()
+        self.consume(Token_dict[Token_enum.END_LINE])
+        return CinNode(identifier_node)
 
     def parse(self):
         return self.program()

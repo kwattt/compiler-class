@@ -32,6 +32,8 @@
 ###### parameters    -> type identifier | type identifier , parameters |  ε
 ###### function_parameters -> factor | factor , function_parameters |  ε
 
+###### cin -> cin >> identifier ;
+
 ##### Special funcs
 ###### special_func  -> print
 ###### print     -> print ( expression ) ;

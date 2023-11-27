@@ -68,6 +68,8 @@ class Token_enum(Enum):
     FUNC_DEF = 42
     #TOKEN_EOF = 41
 
+    CIN = 43
+
 Token_dict = {
     Token_enum.INTEGER_DEF: Token(["int"], "definicion de entero"), # init int
     Token_enum.FLOAT_DEF: Token(["float"], "definicion de float"), # init float
@@ -127,4 +129,5 @@ Token_dict = {
     ## invalid identifier,basically the before regex inverted
     Token_enum.INVALID_IDENTIFIER: Token([r"\b[0-9]+[a-zA-Z_]+\b"], 'identificador invalido'),
     #Token_enum.TOKEN_EOF: Token([""], 'fin de archivo')
+    Token_enum.CIN: Token(["cin"], 'cin')
 }
