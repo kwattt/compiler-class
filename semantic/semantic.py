@@ -111,7 +111,8 @@ class SemanticAnalyzer:
                 raise SemanticError(f"1Type mismatch in assignment to '{node.identifier.value}', {node.expression.left.value.__class__.__name__} and {node.expression.right.value.__class__.__name__}")
             ## check if types are the same
             elif node.expression.left.value.__class__.__name__ != str(var_type):
-                raise SemanticError(f"2Type mismatch in assignment to {node.identifier.value}, {node.expression.left.value.__class__.__name__} and {str(var_type)}")
+                if node.expression.left.value.__class__.__name__ != 'IdentifierNode':
+                    raise SemanticError(f"2Type mismatch in assignment to {node.identifier.value}, {node.expression.left.value.__class__.__name__} and {str(var_type)}")
             elif node.expression.right.value.__class__.__name__ != str(var_type):
                 raise SemanticError(f"3Type mismatch in assignment to {node.identifier.value}, {node.expression.left.value.__class__.__name__} and {str(var_type)}")
 

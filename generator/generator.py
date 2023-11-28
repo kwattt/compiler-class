@@ -2,6 +2,7 @@
 from semantic import *
 from syntax import *
 from lexic import *
+
 ## takes the lexic tree, the syntax tree, and the symbol table and generates the pseudocode with keywords CODE, PUSHC, PUSHA, LOAD, STORE, NEG, ADD, MUL, DIV, MOD, INPUT, OUTPUT, END. 
 
 ## for example
@@ -28,72 +29,76 @@ from lexic import *
 # LOAD c
 # OUTPUT
 # END
-
 # the pseudocode will be written to a file called pseudocode.txt
 
 class Generator:
-    def __init__(self, lexic_tree, syntax_tree, symbol_table):
-        self.lexic_tree = lexic_tree
+    def __init__(self, syntax_tree):
         self.syntax_tree = syntax_tree
-        self.symbol_table = symbol_table
         self.pseudocode = []
-        self.pseudocode.append("CODE")
+        self.pseudocode.append(".CODE")
+        #self.write_pseudocode()
         self.generate_pseudocode()
-        self.write_pseudocode()
+        self.pseudocode.append("END")
+        self.print_pseudocode()
 
     def generate_pseudocode(self):
         self.generate_pseudocode_from_tree(self.syntax_tree)
 
+    def parse_operation(self, operator):
+        if operator == "+":
+            self.pseudocode.append(f"ADD")
+        elif operator == "-":
+            self.pseudocode.append(f"SUB")
+        elif operator == "*":
+            self.pseudocode.append(f"MUL")
+        elif operator == "/":
+            self.pseudocode.append(f"DIV")
+        elif operator == "%":
+            self.pseudocode.append(f"MOD")
+
+    def parse_expression(self, node):
+        if isinstance(node, ArithmeticExpressionNode):
+            self.parse_expression(node.left)
+            self.parse_expression(node.right)
+            self.parse_operation(node.operator)
+        elif isinstance(node, FactorNode):
+            if isinstance(node, IntNode):
+                self.pseudocode.append(f"PUSHC {node.value}")
+            elif isinstance(node, FloatNode):
+                self.pseudocode.append(f"PUSHC {node.value}")
+            elif isinstance(node.value, IdentifierNode):
+                self.pseudocode.append(f"PUSHA {node.value.value}")
+                self.pseudocode.append(f"LOAD")
+            else:
+                self.pseudocode.append(f"?")
+
     def generate_pseudocode_from_tree(self, node):
-        if node.type == "program":
-            self.generate_pseudocode_from_tree(node.children[0])
-        elif node.type == "declaration":
-            self.generate_pseudocode_from_tree(node.children[0])
-        elif node.type == "var":
-            self.pseudocode.append("PUSHC 0")
-            self.pseudocode.append("STORE " + node.value)
-        elif node.type == "assignment":
-            self.generate_pseudocode_from_tree(node.children[0])
-            self.generate_pseudocode_from_tree(node.children[1])
-        elif node.type == "cin":
-            self.pseudocode.append("INPUT")
-            self.pseudocode.append("STORE " + node.value)
-        elif node.type == "cout":
-            self.generate_pseudocode_from_tree(node.children[0])
-            self.pseudocode.append("OUTPUT")
-        elif node.type == "expression":
-            self.generate_pseudocode_from_tree(node.children[0])
-        elif node.type == "term":
-            self.generate_pseudocode_from_tree(node.children[0])
-        elif node.type == "factor":
-            self.generate_pseudocode_from_tree(node.children[0])
-        elif node.type == "number":
-            self.pseudocode.append("PUSHC " + node.value)
-        elif node.type == "identifier":
-            self.pseudocode.append("LOAD " + node.value)
-        elif node.type == "addition":
-            self.generate_pseudocode_from_tree(node.children[0])
-            self.generate_pseudocode_from_tree(node.children[1])
-            self.pseudocode.append("ADD")
-        elif node.type == "subtraction":
-            self.generate_pseudocode_from_tree(node.children[0])
-            self.generate_pseudocode_from_tree(node.children[1])
-            self.pseudocode.append("SUB")
-        elif node.type == "multiplication":
-            self.generate_pseudocode_from_tree(node.children[0])
-            self.generate_pseudocode_from_tree(node.children[1])
-            self.pseudocode.append("MUL")
-        elif node.type == "division":
-            self.generate_pseudocode_from_tree(node.children[0])
-            self.generate_pseudocode_from_tree(node.children[1])
-            self.pseudocode.append("DIV")
-        elif node.type == "modulo":
-            self.generate_pseudocode_from_tree(node.children[0])
-            self.generate_pseudocode_from_tree(node.children[1])
-            self.pseudocode.append("MOD")
-        elif node.type == "negative":
-            self.generate_pseudocode_from_tree(node.children[0])
-            self.pseudocode.append("NEG")
+        ## check if node is a program
+        if isinstance(node, ProgramNode):
+            for child in node.children:
+                self.generate_pseudocode_from_tree(child)
+        ## check if node is a statement
+        elif isinstance(node, InitializationNode):
+            self.generate_pseudocode_from_tree(node.identifier)
+            if node.expression:
+                self.pseudocode.append(f"PUSHC {node.expression.value}")
+            else:
+                self.pseudocode.append(f"PUSHC 0")
+            self.pseudocode.append(f"STORE {node.identifier.value}")
+
+        elif isinstance(node, AssignmentNode):
+            self.pseudocode.append(f"PUSHA {node.identifier.value}")
+            self.parse_expression(node.expression)
+            self.pseudocode.append(f"STORE")
+            self.pseudocode.append(f"OUTPUT {node.identifier.value}")
+
+        elif isinstance(node, ArithmeticExpressionNode):
+            self.parse_expression(node)
+
+        elif isinstance(node, CinNode):
+            self.generate_pseudocode_from_tree(node.identifier)
+            self.pseudocode.append(f"INPUT")
+            self.pseudocode.append(f"STORE {node.identifier.value}")
 
     def write_pseudocode(self):
         f = open("pseudocode.txt", "w")

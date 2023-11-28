@@ -40,11 +40,11 @@ def v1_lexico():
     except ParserUnexpectedType as e:
         return jsonify({"error": str(f"SyntaxError: {e}")}), 200
 
-    try:
-        sem = SemanticAnalyzer(parsed_code)
-        sem.analyze()
-    except SemanticError as e:
-        return jsonify({"error": str(f"SemanticError: {e}")}), 200
+    #try:
+    #    sem = SemanticAnalyzer(parsed_code)
+    #    sem.analyze()
+    #except SemanticError as e:
+    #    return jsonify({"error": str(f"SemanticError: {e}")}), 200
 
     tree_dict = program_to_tree(parsed_code)
 

@@ -4,31 +4,13 @@ from syntax import parse_program
 from syntax import program_to_tree
 
 sample_code = """
-int integral = 2;
-while (true) {
-    if (a==false){
-        break;
-        }
-}
-// buenas tardes..
-
-int asd = 22;
-
-fun int suma(int a, int b) {
-    return a+b;
-}
-
-fun void do_stuff(){
-    int i = 22;
-    if((2+2)==4) {
-        print("verdad");
-        void a = 0;
-        print(suma(2,3));
-    } else {
-        print("you suck");
-    }
-}
-do_stuff();
+int a; 
+cin = a;
+int b;
+cin = b;
+int c;
+c = a + b;
+print(c);
 """
 
 tokens = lexic_analyzer(sample_code)
