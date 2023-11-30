@@ -116,6 +116,9 @@ class SemanticAnalyzer:
             elif node.expression.right.value.__class__.__name__ != str(var_type):
                 raise SemanticError(f"3Type mismatch in assignment to {node.identifier.value}, {node.expression.left.value.__class__.__name__} and {str(var_type)}")
 
+        elif isinstance(node.expression, TermNode):
+            print(node.expression.left, node.expression.right)
+
         elif node.expression.value.__class__.__name__ != str(var_type):
             ## is assigning to a variable? 
             ## lets check if variable is already defined

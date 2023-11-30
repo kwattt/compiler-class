@@ -6,7 +6,7 @@ from flask_cors import CORS
 
 from syntax import parse_program, program_to_tree, ParserUnexpectedEnd, ParserUnexpectedType
 from semantic import SemanticAnalyzer, SemanticError
-
+from generator import Generator
 app = flask.Flask(__name__)
 cors = CORS(app , resources={r"/*": {"origins": "*", "allow_headers": "*", "expose_headers": "*"}})
 
@@ -40,13 +40,19 @@ def v1_lexico():
     except ParserUnexpectedType as e:
         return jsonify({"error": str(f"SyntaxError: {e}")}), 200
 
-    #try:
-    #    sem = SemanticAnalyzer(parsed_code)
-    #    sem.analyze()
-    #except SemanticError as e:
-    #    return jsonify({"error": str(f"SemanticError: {e}")}), 200
+    try:
+        sem = SemanticAnalyzer(parsed_code)
+        sem.analyze()
+    except SemanticError as e:
+        return jsonify({"error": str(f"SemanticError: {e}")}), 200
 
     tree_dict = program_to_tree(parsed_code)
+
+    generator = Generator(parsed_code)
+    to_txt = generator.get_pseudo()
+    # separate with \n
+    to_txt = '\n'.join(to_txt)
+    to_txt2 = '\n'.join(generator.generate_pseudoasm())
 
     return jsonify({
         "output": processed_text,
@@ -56,7 +62,9 @@ def v1_lexico():
             "line": match.line,
             "span": f'{match.span[0]}, {match.span[1]}',
         } for match in new_matches],
-        "tree": tree_dict
+        "tree": tree_dict,
+        "pseudo": to_txt,
+        "asm": to_txt2,
     }), 200
 
 if __name__ == '__main__':

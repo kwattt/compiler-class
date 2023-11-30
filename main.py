@@ -10,3 +10,5 @@ tree = parse_program(new_matches)
 #data = SemanticAnalyzer(tree).analyze()
 
 generator = Generator(tree)
+print(generator.get_pseudo())
+print(generator.generate_pseudoasm())

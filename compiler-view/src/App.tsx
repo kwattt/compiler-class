@@ -75,6 +75,8 @@ const App = () => {
   const [error, setError] = useState('')
   const [treeData, setTreeData] = useState<any>({})
   const [file, setFile] = useState<File | null>(null);
+  const [pseudo, setPseudo] = useState('')
+  const [asm, setAsm] = useState('')
 
   const getAxiosData = async (sdata: string) => {
     const { data } = await axios.post('http://localhost:5000/api/v1/lexico', { code: sdata })
@@ -93,6 +95,8 @@ const App = () => {
       setOutput(data.output)
       console.log(convertTree(data.tree))
       setTreeData(convertTree(data.tree))
+      setPseudo(data.pseudo)
+      setAsm(data.asm)
     }
 
   }
@@ -207,6 +211,28 @@ const App = () => {
             orientation={'vertical'}
           />
         </Box>
+      </Box>
+      <Box>
+        <Text>generated</Text>
+        <Textarea
+          my='3%'
+          minH='30vh'
+          value={pseudo}
+          onChange={(e) => setPseudo(e.target.value)}
+          bg='rgba(250,250,250,0.8)'
+          color='black'
+        ></Textarea>
+      </Box>
+      <Box>
+        <Text>asm</Text>
+        <Textarea
+          my='3%'
+          minH='30vh'
+          value={asm}
+          onChange={(e) => setPseudo(e.target.value)}
+          bg='rgba(250,250,250,0.8)'
+          color='black'
+        ></Textarea>
       </Box>
     </Box>
   </Box></body>
